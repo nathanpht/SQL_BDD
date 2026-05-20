@@ -1,0 +1,175 @@
+
+// GROUPE C13
+// Nathan Philippot, Kenzo Weber, Ayoub Fezzani
+
+// ---------- TABLES PRINCIPALES ----------
+
+VAR client REAL RELATION {
+    id_client INTEGER,
+    nom_cli STRING,
+    prenom_cli STRING,
+    adresse_cli1 STRING,
+    adresse_cli2 STRING,
+    adresse_cli3 STRING,
+    code_postal_cli CHAR(5),
+    ville_cli STRING,
+    telephone_cli STRING,
+    mail_cli STRING
+}
+KEY { id_client };
+
+VAR compteur REAL RELATION {
+    pdl_prm CHAR(14),
+    adresse1 STRING,
+    adresse2 STRING,
+    adresse3 STRING,
+    code_postal CHAR(5),
+    ville STRING,
+    date_hiver_ete DATE,
+    date_ete_hiver DATE
+}
+KEY { pdl_prm };
+
+VAR contrat REAL RELATION {
+    no_contrat STRING,
+    date_debut_contrat DATE
+}
+KEY { no_contrat };
+
+VAR fournisseur REAL RELATION {
+    id_fournisseur CHAR(5),
+    libelle_fournisseur STRING,
+    telephone_fournisseur STRING,
+    mail_fournisseur STRING
+}
+KEY { id_fournisseur };
+
+VAR formule_tarifaire REAL RELATION {
+    id_formule INTEGER,
+    lib_formule STRING,
+    descriptif_formule STRING,
+    date_commercialisation DATE
+}
+KEY { id_formule };
+
+VAR puissance REAL RELATION {
+    val_puissance INTEGER
+}
+KEY { val_puissance };
+
+VAR periode_conso REAL RELATION {
+    id_periode_conso STRING,
+    lib_periode_conso STRING
+}
+KEY { id_periode_conso };
+
+VAR creneau REAL RELATION {
+    no_creneau_hebdo INTEGER,
+    jour_hebdo STRING,
+    heure_debut TIME,
+    heure_fin TIME
+}
+KEY { no_creneau_hebdo };
+
+VAR date_jour REAL RELATION {
+    date DATE
+}
+KEY { date };
+
+VAR creneau_quotidien REAL RELATION {
+    heure TIME
+}
+KEY { heure };
+
+// ---------- TABLES D'ASSOCIATION ----------
+
+VAR posseder REAL RELATION {
+    id_client INTEGER,
+    pdl_prm CHAR(14)
+}
+KEY { id_client, pdl_prm };
+
+VAR souscrire REAL RELATION {
+    no_contrat STRING,
+    id_formule INTEGER
+}
+KEY { no_contrat };
+
+VAR proposer REAL RELATION {
+    id_fournisseur CHAR(5),
+    id_formule INTEGER
+}
+KEY { id_fournisseur, id_formule };
+
+VAR comprend REAL RELATION {
+    id_formule INTEGER,
+    no_creneau_hebdo INTEGER
+}
+KEY { id_formule, no_creneau_hebdo };
+
+VAR inclure REAL RELATION {
+    id_formule INTEGER,
+    id_periode_conso STRING
+}
+KEY { id_formule, id_periode_conso };
+
+VAR tarifer_kwh REAL RELATION {
+    id_formule INTEGER,
+    val_puissance INTEGER,
+    id_periode_conso STRING,
+    prix_kwh_ht FLOAT,
+    prix_kwh_ttc FLOAT
+}
+KEY { id_formule, val_puissance, id_periode_conso };
+
+VAR tarifer_abonnement REAL RELATION {
+    id_formule INTEGER,
+    val_puissance INTEGER,
+    prix_abo_ht FLOAT,
+    prix_abo_ttc FLOAT
+}
+KEY { id_formule, val_puissance };
+
+VAR releve REAL RELATION {
+    pdl_prm CHAR(14),
+    date DATE,
+    heure TIME,
+    conso_kwh FLOAT
+}
+KEY { pdl_prm, date, heure };
+
+// ---------- CLÉ PRIMAIRE ----------
+
+// posseder
+CONSTRAINT fk_posseder_client posseder{ id_client } <= client{ id_client };
+CONSTRAINT fk_posseder_compteur posseder{ pdl_prm } <= compteur{ pdl_prm };
+
+// souscrire
+CONSTRAINT fk_souscrire_contrat souscrire{ no_contrat } <= contrat{ no_contrat };
+CONSTRAINT fk_souscrire_formule souscrire{ id_formule } <= formule_tarifaire{ id_formule };
+
+// proposer
+CONSTRAINT fk_proposer_fournisseur proposer{ id_fournisseur } <= fournisseur{ id_fournisseur };
+CONSTRAINT fk_proposer_formule proposer{ id_formule } <= formule_tarifaire{ id_formule };
+
+// comprend
+CONSTRAINT fk_comprend_formule comprend{ id_formule } <= formule_tarifaire{ id_formule };
+CONSTRAINT fk_comprend_creneau comprend{ no_creneau_hebdo } <= creneau{ no_creneau_hebdo };
+
+// inclure
+CONSTRAINT fk_inclure_formule inclure{ id_formule } <= formule_tarifaire{ id_formule };
+CONSTRAINT fk_inclure_periode inclure{ id_periode_conso } <= periode_conso{ id_periode_conso };
+
+// tarifer_kwh
+CONSTRAINT fk_tk_formule tarifer_kwh{ id_formule } <= formule_tarifaire{ id_formule };
+CONSTRAINT fk_tk_puissance tarifer_kwh{ val_puissance } <= puissance{ val_puissance };
+CONSTRAINT fk_tk_periode tarifer_kwh{ id_periode_conso } <= periode_conso{ id_periode_conso };
+
+// tarifer_abonnement
+CONSTRAINT fk_ta_formule tarifer_abonnement{ id_formule } <= formule_tarifaire{ id_formule };
+CONSTRAINT fk_ta_puissance tarifer_abonnement{ val_puissance } <= puissance{ val_puissance };
+
+// releve
+CONSTRAINT fk_releve_compteur releve{ pdl_prm } <= compteur{ pdl_prm };
+CONSTRAINT fk_releve_date releve{ date } <= date_jour{ date };
+CONSTRAINT fk_releve_heure releve{ heure } <= creneau_quotidien{ heure };

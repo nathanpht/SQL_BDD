@@ -1,0 +1,24 @@
+
+// GROUPE C13
+// Nathan Philippot, Kenzo Weber, Ayoub Fezzani
+
+
+DROP VAR releve;
+DROP VAR tarifer_abonnement;
+DROP VAR tarifer_kwh;
+DROP VAR inclure;
+DROP VAR comprend;
+DROP VAR proposer;
+DROP VAR souscrire;
+DROP VAR posseder;
+
+DROP VAR creneau_quotidien;
+DROP VAR date_jour;
+DROP VAR creneau;
+DROP VAR periode_conso;
+DROP VAR puissance;
+DROP VAR formule_tarifaire;
+DROP VAR fournisseur;
+DROP VAR contrat;
+DROP VAR compteur;
+DROP VAR client;
